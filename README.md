@@ -1,2 +1,2 @@
 # adventure-party
-Based on d&amp;d 5e
+Based on d&d 5e
