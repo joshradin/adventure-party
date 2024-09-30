@@ -1,0 +1,20 @@
+[package]
+name = "game_server"
+edition = "2021"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+
+[dependencies]
+adventure_party_naia_world = { version = "0.0.0", path = "../adventure_party_naia_world" }
+common = { version = "0.0.0", path = "../common", features = ["full"] }
+
+naia-server = { workspace = true, features = ["transport_webrtc"] }
+naia_macroquad_shared = { version = "0.0.0", path = "../naia_macroquad_shared" }
+
+tracing = { workspace = true }
+tokio = { workspace = true, features = ["full"] }

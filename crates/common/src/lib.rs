@@ -1,9 +1,7 @@
 //! Provide many commonly used parts throughout in one place
 
-
 #[cfg(feature = "tracing")]
 pub mod tracing;
-
 
 mod test_macros {
     #[cfg(feature = "test-macros")]

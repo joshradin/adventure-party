@@ -1,0 +1,13 @@
+[package]
+name = "adventure_party_naia_world"
+description = "creates a super basic entity system"
+edition = "2021"
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+
+[dependencies]
+naia-shared = { workspace = true, features = ["mquad"] }

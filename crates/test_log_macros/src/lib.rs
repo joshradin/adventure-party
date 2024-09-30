@@ -52,6 +52,9 @@ fn try_test(attr: proc_macro::TokenStream, test: ItemFn) -> syn::Result<Tokens> 
                 use ::common::tracing::{Stdout, Stderr, File};
                 use ::common::tracing::level_filters::LevelFilter;
                 let mut options = LoggingOptions::new()
+                    .files(true)
+                    .lines(true)
+                    .thread_ids(true)
                     #configure_options;
 
                 if options.target_count() == 0 {

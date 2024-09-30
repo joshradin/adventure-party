@@ -10,5 +10,3 @@ fn test_test_log_with_tracing() {
     info!("Hello, world!");
     assert!(true);
 }
-
-

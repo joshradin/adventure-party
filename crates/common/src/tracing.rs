@@ -1,5 +1,6 @@
 use derive_more::From;
 use std::collections::HashSet;
+use std::fs::OpenOptions;
 use std::io::{stderr, stdout};
 use std::path::{Path, PathBuf};
 use thiserror::Error;
@@ -7,9 +8,9 @@ use tracing::level_filters::LevelFilter;
 use tracing::subscriber::{set_global_default, SetGlobalDefaultError};
 use tracing::Subscriber;
 use tracing_subscriber::fmt::format::Format;
-use tracing_subscriber::{fmt, Layer, Registry};
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::registry::LookupSpan;
+use tracing_subscriber::{fmt, Layer, Registry};
 
 #[derive(Debug)]
 pub struct Stdout(pub LevelFilter);
@@ -33,42 +34,34 @@ pub enum Target {
 }
 
 impl Target {
-    fn layer<S>(self, fmt: &Format) -> Result<Box<dyn Layer<S> + Send + Sync + 'static>, InitializeLoggingError>
+    fn layer<S>(
+        self,
+        options: &LoggingOptions,
+    ) -> Result<Box<dyn Layer<S> + Send + Sync + 'static>, InitializeLoggingError>
     where
         S: Subscriber + for<'a> LookupSpan<'a>,
     {
         let layer = fmt::layer()
-            .event_format(fmt.clone())
-            .with_thread_ids(true)
-            ;
+            .event_format(
+                options
+                    .format
+                    .as_ref()
+                    .cloned()
+                    .unwrap_or_else(|| fmt::format()),
+            )
+            .with_thread_ids(options.with_thread_ids)
+            .with_thread_names(options.with_thread_names)
+            .with_file(options.with_files)
+            .with_line_number(options.with_lines);
         #[cfg(test)]
         let layer = layer.with_test_writer();
 
         let l = match self {
-            Target::Stdout(Stdout(filter)) => {
-                layer
-                    .with_writer(
-                        stdout
-                    )
-                    .with_filter(filter)
-                    .boxed()
-            }
-            Target::Stderr(Stderr(filter)) => {
-                layer
-                    .with_writer(
-                        stderr
-                    )
-                    .with_filter(filter)
-                    .boxed()
-            }
+            Target::Stdout(Stdout(filter)) => layer.with_writer(stdout).with_filter(filter).boxed(),
+            Target::Stderr(Stderr(filter)) => layer.with_writer(stderr).with_filter(filter).boxed(),
             Target::File(File(filter, path)) => {
                 let file = std::fs::File::create(path)?;
-                layer
-                    .with_writer(
-                        file
-                    )
-                    .with_filter(filter)
-                    .boxed()
+                layer.with_writer(file).with_filter(filter).boxed()
             }
         };
         Ok(l)
@@ -81,12 +74,14 @@ struct Targets {
 }
 
 impl Targets {
-    fn new<I: IntoIterator<Item=Target>>(iter: I) -> Result<Self, InitializeLoggingError> {
+    fn new<I: IntoIterator<Item = Target>>(iter: I) -> Result<Self, InitializeLoggingError> {
         let mut out = false;
         let mut err = false;
         let mut paths = HashSet::new();
 
-        let mut ret = Targets { targets: Vec::new() };
+        let mut ret = Targets {
+            targets: Vec::new(),
+        };
 
         for target in iter {
             match target {
@@ -102,20 +97,22 @@ impl Targets {
                     paths.insert(path.clone());
                     ret.targets.push(target);
                 }
-                _ => {
-                    return Err(InitializeLoggingError::CannotReEmitToSameTarget(target))
-                }
+                _ => return Err(InitializeLoggingError::CannotReEmitToSameTarget(target)),
             }
         }
 
         Ok(ret)
     }
 
-    fn into_subscriber(self, format: Format) -> Result<impl Subscriber, InitializeLoggingError> {
+    fn into_subscriber(
+        mut self,
+        options: &LoggingOptions,
+    ) -> Result<impl Subscriber, InitializeLoggingError> {
         let mut layers = vec![];
 
-        for x in self.targets {
-            let layer = x.layer(&format)?;
+        let targets = self.targets.drain(..).collect::<Vec<_>>();
+        for x in targets {
+            let layer = x.layer(options)?;
             layers.push(layer);
         }
         let registry: Registry = Registry::default();
@@ -129,6 +126,10 @@ pub struct LoggingOptions {
     pub level: LevelFilter,
     format: Option<Format>,
     targets: Vec<Target>,
+    with_thread_ids: bool,
+    with_thread_names: bool,
+    with_files: bool,
+    with_lines: bool,
 }
 
 impl LoggingOptions {
@@ -138,6 +139,10 @@ impl LoggingOptions {
             level: LevelFilter::OFF,
             format: None,
             targets: vec![],
+            with_thread_ids: false,
+            with_thread_names: false,
+            with_files: false,
+            with_lines: false,
         }
     }
 
@@ -152,9 +157,27 @@ impl LoggingOptions {
     }
 
     pub fn target<T>(mut self, target: T) -> Self
-        where Target: From<T>
+    where
+        Target: From<T>,
     {
         self.targets.push(Target::from(target));
+        self
+    }
+
+    pub fn thread_ids(mut self, with_thread_ids: bool) -> Self {
+        self.with_thread_ids = with_thread_ids;
+        self
+    }
+    pub fn thread_names(mut self, with_thread_names: bool) -> Self {
+        self.with_thread_names = with_thread_names;
+        self
+    }
+    pub fn files(mut self, with_files: bool) -> Self {
+        self.with_files = with_files;
+        self
+    }
+    pub fn lines(mut self, with_lines: bool) -> Self {
+        self.with_lines = with_lines;
         self
     }
 
@@ -163,16 +186,13 @@ impl LoggingOptions {
         self.targets.len()
     }
 
-    pub fn into_subscriber(self) -> Result<impl Subscriber, InitializeLoggingError> {
-        let targets = Targets::new(self.targets)?;
-        let format = self.format.unwrap_or_else(|| fmt::format());
+    pub fn into_subscriber(mut self) -> Result<impl Subscriber, InitializeLoggingError> {
+        let targets = Targets::new(self.targets.drain(..))?;
 
-        let subscriber = targets.into_subscriber(format)?;
+        let subscriber = targets.into_subscriber(&self)?;
         Ok(subscriber)
     }
 }
-
-
 
 /// Attempts to initialize logging with the given options
 pub fn try_init_logging(logging_options: LoggingOptions) -> Result<(), InitializeLoggingError> {
@@ -195,7 +215,7 @@ pub enum InitializeLoggingError {
     #[error(transparent)]
     IoError(#[from] std::io::Error),
     #[error("No targets have been set")]
-    NoTargets
+    NoTargets,
 }
 
 #[cfg(test)]
@@ -203,13 +223,12 @@ mod tests {
     use super::*;
     #[test]
     fn test_create_targets() {
-        let _ = Targets::new([
-            Stdout(LevelFilter::OFF).into()
-        ]).expect("failed to create targets");
+        let _ = Targets::new([Stdout(LevelFilter::OFF).into()]).expect("failed to create targets");
 
         let _ = Targets::new([
             Stdout(LevelFilter::OFF).into(),
             Stdout(LevelFilter::OFF).into(),
-        ]).expect_err("can not repeat");
+        ])
+        .expect_err("can not repeat");
     }
 }
