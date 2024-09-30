@@ -1,14 +1,13 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+//! Provide many commonly used parts throughout in one place
+
+
+#[cfg(feature = "tracing")]
+pub mod tracing;
+
+
+mod test_macros {
+    #[cfg(feature = "test-macros")]
+    pub use test_log_macros::test;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub use test_macros::*;

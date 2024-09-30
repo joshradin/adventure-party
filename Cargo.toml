@@ -1,6 +1,11 @@
 [workspace]
 members = [
   "libs/*",
+  "bins/*",
+  "proc_macros/*"
+]
+default-members = [
+  "libs/*",
   "bins/*"
 ]
 resolver = "2"
