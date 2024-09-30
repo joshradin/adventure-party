@@ -1,8 +1,8 @@
+use crate::app::App;
 use log::{info, Level};
 use macroquad::prelude::next_frame;
 use macroquad::Window;
 use wasm_bindgen::prelude::wasm_bindgen;
-use crate::app::App;
 
 mod app;
 mod interp;

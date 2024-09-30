@@ -1,5 +1,5 @@
-use log::info;
 use adventure_party_naia_world::{Entity, World};
+use log::info;
 use naia_client::transport::webrtc;
 use naia_client::ClientConfig;
 use naia_macroquad_shared::messages::Auth;
@@ -18,10 +18,7 @@ impl App {
 
         let protocol = protocol();
         let socket = webrtc::Socket::new("http://127.0.0.1:14191", &protocol.socket);
-        let mut client = Client::new(
-            ClientConfig::default(),
-            protocol
-        );
+        let mut client = Client::new(ClientConfig::default(), protocol);
         client.auth(Auth::new("joshua", "12345678"));
         client.connect(socket);
 
