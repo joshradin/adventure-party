@@ -1,6 +1,6 @@
 //! messages
 
-use naia_shared::{Protocol, ProtocolPlugin};
+use naia_bevy_shared::{Protocol, ProtocolPlugin};
 pub use auth::Auth;
 
 mod auth;

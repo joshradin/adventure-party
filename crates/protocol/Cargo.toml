@@ -1,5 +1,5 @@
 [package]
-name = "naia_macroquad_shared"
+name = "protocol"
 edition = "2021"
 version.workspace = true
 authors.workspace = true
@@ -10,4 +10,7 @@ rust-version.workspace = true
 license-file.workspace = true
 
 [dependencies]
-naia-shared = { workspace = true, features = ["mquad"] }
+naia-bevy-shared = { workspace = true }
+log = { workspace = true }
+cfg-if = { workspace = true }
+bevy_ecs = { workspace = true }

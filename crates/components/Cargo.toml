@@ -1,0 +1,13 @@
+[package]
+name = "components"
+edition = "2021"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+
+[dependencies]
+yew.workspace = true

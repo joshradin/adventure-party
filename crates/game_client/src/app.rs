@@ -1,30 +1,30 @@
-use adventure_party_naia_world::{Entity, World};
-use log::info;
-use naia_client::transport::webrtc;
-use naia_client::ClientConfig;
-use naia_macroquad_shared::messages::Auth;
-use naia_macroquad_shared::protocol;
+use bevy::prelude::*;
+use naia_bevy_client::{ClientConfig, Plugin as ClientPlugin};
+use protocol::protocol;
 
-type Client = naia_client::Client<Entity>;
+pub struct Main;
 
-pub struct App {
-    client: Client,
-    world: World,
-}
+#[derive(SystemSet, Debug, Hash, Clone, Eq, PartialEq)]
+struct MainLoop;
+#[derive(SystemSet, Debug, Hash, Clone, Eq, PartialEq)]
+struct Tick;
 
-impl App {
-    pub fn new() -> Self {
-        info!("Starting up...");
-
-        let protocol = protocol();
-        let socket = webrtc::Socket::new("http://127.0.0.1:14191", &protocol.socket);
-        let mut client = Client::new(ClientConfig::default(), protocol);
-        client.auth(Auth::new("joshua", "12345678"));
-        client.connect(socket);
-
-        Self {
-            client,
-            world: Default::default(),
-        }
-    }
+pub fn run() {
+    App::new()
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                // provide the ID selector string here
+                canvas: Some("#mygame-canvas".into()),
+                // ... any other window properties ...
+                ..default()
+            }),
+            ..default()
+        }))
+        .add_plugins(
+            ClientPlugin::<Main>::new(
+                ClientConfig::default(),
+                protocol(),
+            )
+        )
+        .run();
 }

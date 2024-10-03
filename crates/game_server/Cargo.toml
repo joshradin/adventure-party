@@ -10,11 +10,14 @@ rust-version.workspace = true
 license-file.workspace = true
 
 [dependencies]
-adventure_party_naia_world = { version = "0.0.0", path = "../adventure_party_naia_world" }
+#adventure_party_naia_world = { version = "0.0.0", path = "../adventure_party_naia_world" }
 common = { version = "0.0.0", path = "../common", features = ["full"] }
-
-naia-server = { workspace = true, features = ["transport_webrtc"] }
-naia_macroquad_shared = { version = "0.0.0", path = "../naia_macroquad_shared" }
+naia-bevy-server = { workspace = true, features = ["transport_webrtc"] }
+protocol = { version = "0.0.0", path = "../protocol" }
 
 tracing = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
+bevy_app = { workspace = true }
+bevy_core = { workspace = true }
+bevy_ecs = { workspace = true }
+bevy_log = { workspace = true }

@@ -1,5 +1,5 @@
 use std::time::Duration;
-use naia_shared::{LinkConditionerConfig, Protocol};
+use naia_bevy_shared::{LinkConditionerConfig, Protocol};
 use crate::channels::ChannelsPlugin;
 use crate::messages::MessagesPlugin;
 

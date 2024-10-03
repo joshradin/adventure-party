@@ -1,0 +1,21 @@
+[package]
+name = "ssr_hydrate"
+edition = "2021"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+
+
+[lib]
+name = "ssr_hydrate"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pages = { version = "0.0.0", path = "../pages" }
+yew = { workspace = true, features = ["hydration"] }
+wasm-bindgen = { workspace = true }

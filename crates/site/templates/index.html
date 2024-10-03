@@ -1,0 +1,17 @@
+<html lang="en">
+    <head>
+        <title>Adventure Party</title>
+        <link rel="stylesheet" href="/index.css">
+    </head>
+    <body>
+        <script type="module">
+            import init, { hydrate, Page } from "/ssr_hydrate/ssr_hydrate.js"
+
+            if (!hydrate || !Page) {
+                throw new Error("hydrate or page is not defined")
+            }
+            await init({})
+            hydrate(Page.Index)
+        </script>
+    </body>
+</html>

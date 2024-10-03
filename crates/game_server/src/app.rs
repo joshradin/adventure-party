@@ -1,14 +1,12 @@
-use naia_server::transport::webrtc;
+use naia_bevy_server::transport::webrtc;
 use std::net::ToSocketAddrs;
 use std::time::Duration;
-use naia_server::{AuthEvent, ServerConfig};
+use bevy_ecs::prelude::*;
+use naia_bevy_server::{AuthEvent, ServerConfig};
 use tokio::time::sleep;
 use tracing::{debug, info, instrument};
-use adventure_party_naia_world::{Entity, World};
-use naia_macroquad_shared::messages::Auth;
-use naia_macroquad_shared::protocol;
 
-type Server = naia_server::Server<Entity>;
+
 
 pub static SIGNALING_PORT: u16 = 14191;
 pub static UDP_PORT: u16 = 14192;

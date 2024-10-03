@@ -1,0 +1,33 @@
+[package]
+name = "site"
+edition = "2021"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+
+[dependencies]
+axum = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+askama = { workspace = true }
+common = { version = "0.0.0", path = "../common", features = ["full"] }
+eyre = { workspace = true }
+color-eyre = { workspace = true }
+clap = { workspace = true, features = ["derive", "env"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-error = { workspace = true }
+relative-path = { workspace = true }
+askama_axum = { workspace = true }
+axum-extra = { workspace = true, features = ["typed-header"] }
+mime = { workspace = true }
+moka = { workspace = true, features = ["future"] }
+yew = { workspace = true, features = ["ssr"] }
+pin-project = { workspace = true }
+futures = { workspace = true }
+http-body = { workspace = true }
+thiserror = { workspace = true }
+pages = { version = "0.0.0", path = "../pages" }

@@ -9,19 +9,21 @@ publish.workspace = true
 rust-version.workspace = true
 license-file.workspace = true
 
+[[bin]]
+name = "game_client"
+path = "src/main.rs"
+
 [lib]
+name = "game_client"
+path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-adventure_party_naia_world = { version = "0.0.0", path = "../adventure_party_naia_world" }
-macroquad = { workspace = true, features = ["log"] }
-naia-client = { workspace = true, features = ["mquad", "transport_webrtc"] }
-log = { workspace = true, features = []}
-naia_macroquad_shared = { version = "0.0.0", path = "../naia_macroquad_shared" }
-instant = { version = "0.1.13", features = ["wasm-bindgen"] }
-console_error_panic_hook = "0.1.7"
-wasm-bindgen = "0.2.93"
-console_log = "1.0.0"
+naia-bevy-client = { workspace = true, features = ["transport_webrtc"] }
+bevy = { workspace = true, features = ["bevy_asset", "bevy_winit", "bevy_core_pipeline", "bevy_render", "bevy_sprite", "x11", "webgl2"] }
+cfg-if = { workspace = true }
+log = { workspace = true }
+protocol = { path="../protocol", version="0.0.0"}
 
-[dev-dependencies]
-wasm-bindgen-test = "0.3.43"
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "0.2", features = [ "serde-serialize" ] }

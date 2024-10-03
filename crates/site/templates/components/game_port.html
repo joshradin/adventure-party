@@ -1,0 +1,13 @@
+<div id="game-port">
+    <canvas id="{{ canvas_id }}" style="width: 100%">
+    </canvas>
+    <script type="module">
+        import app from "/game_client/app.js"
+
+        async function start() {
+            await app({})
+        }
+
+        start()
+    </script>
+</div>
