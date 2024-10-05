@@ -1,5 +1,10 @@
 use std::default::Default;
 
+use crate::{
+    app::Main,
+    components::{Confirmed, Interp, LocalCursor, Predicted},
+    resources::{Global, OwnedEntity},
+};
 use bevy::color::LinearRgba;
 use bevy::{
     log::info,
@@ -9,6 +14,9 @@ use bevy::{
     },
     sprite::MaterialMesh2dBundle,
 };
+use game_shared::channels::{EntityAssignmentChannel, PlayerCommandChannel, RequestChannel};
+use game_shared::components::{Color, ColorValue, Position, Shape, ShapeValue};
+use game_shared::messages::{BasicRequest, BasicResponse, EntityAssignment, KeyCommand};
 use naia_bevy_client::{
     events::{
         ClientTickEvent, ConnectEvent, DespawnEntityEvent, DisconnectEvent, InsertComponentEvents,
@@ -16,12 +24,6 @@ use naia_bevy_client::{
         SpawnEntityEvent, UnpublishEntityEvent, UpdateComponentEvents,
     },
     sequence_greater_than, Client, CommandsExt, Random, Replicate, Tick,
-};
-
-use crate::{
-    app::Main,
-    components::{Confirmed, Interp, LocalCursor, Predicted},
-    resources::{Global, OwnedEntity},
 };
 
 const SQUARE_SIZE: f32 = 32.0;
@@ -351,7 +353,7 @@ pub fn update_component_events(
 
                 let replay_commands = global.command_history.replays(&modified_server_tick);
                 for (_command_tick, command) in replay_commands {
-                    shared_behavior::process_command(&command, &mut client_position);
+                    game_shared::behavior::process_command(&command, &mut client_position);
                 }
             }
         }
@@ -418,7 +420,7 @@ pub fn tick_events(
 
         if let Ok(mut position) = position_query.get_mut(predicted_entity) {
             // Apply command
-            shared_behavior::process_command(&command, &mut position);
+            game_shared::behavior::process_command(&command, &mut position);
         }
     }
 }

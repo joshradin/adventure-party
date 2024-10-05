@@ -14,9 +14,8 @@ license-file.workspace = true
 common = { version = "0.0.0", path = "../common", features = ["full"] }
 naia-bevy-server = { workspace = true, features = ["transport_webrtc"] }
 game_shared = { version = "0.0.0", path = "../game_shared" }
+log = "0.4.22"
 
-tracing = { workspace = true }
-tokio = { workspace = true, features = ["full"] }
 bevy_app = { workspace = true }
 bevy_core = { workspace = true }
 bevy_ecs = { workspace = true }
