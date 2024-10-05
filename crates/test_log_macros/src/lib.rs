@@ -1,5 +1,5 @@
-use proc_macro2::{Ident, TokenStream as Tokens,};
-use proc_macro_error::{proc_macro_error};
+use proc_macro2::{Ident, TokenStream as Tokens};
+use proc_macro_error::proc_macro_error;
 use quote::quote;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, VecDeque};
@@ -7,14 +7,14 @@ use syn::parse::Parser;
 use syn::punctuated::Punctuated;
 use syn::{parse_macro_input, Expr, ItemFn, Meta, MetaNameValue, Token};
 
-
 #[proc_macro_error]
 #[proc_macro_attribute]
-pub fn test(attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub fn test(
+    attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
     let item_fn = parse_macro_input!(item as ItemFn);
-    let out = try_test(
-        attr, item_fn,
-    )
+    let out = try_test(attr, item_fn)
         .unwrap_or_else(|err| err.to_compile_error())
         .into();
     out
@@ -31,7 +31,7 @@ fn try_test(attr: proc_macro::TokenStream, test: ItemFn) -> syn::Result<Tokens> 
         None => {
             quote! {::core::prelude::v1::test}
         }
-        Some(s) => { s }
+        Some(s) => s,
     };
 
     let settings = attribute_args.settings;
@@ -44,35 +44,37 @@ fn try_test(attr: proc_macro::TokenStream, test: ItemFn) -> syn::Result<Tokens> 
         })
         .collect::<Tokens>();
 
-    let init =
-        if cfg!(feature = "tracing") {
-            quote! {
-                use ::common::tracing::LoggingOptions;
-                use ::common::tracing::subscriber::util::SubscriberInitExt;
-                use ::common::tracing::{Stdout, Stderr, File};
-                use ::common::tracing::level_filters::LevelFilter;
-                let mut options = LoggingOptions::new()
-                    .files(true)
-                    .lines(true)
-                    .thread_ids(true)
-                    #configure_options;
+    let init = if cfg!(feature = "tracing") {
+        quote! {
+            use ::common::tracing::LoggingOptions;
+            use ::common::tracing::subscriber::util::SubscriberInitExt;
+            use ::common::tracing::{Stdout, Stderr, File};
+            use ::common::tracing::level_filters::LevelFilter;
+            let mut options = LoggingOptions::new()
+                .files(true)
+                .lines(true)
+                .thread_ids(true)
+                #configure_options;
 
-                if options.target_count() == 0 {
-                    let level = options.level.clone();
-                    options = options.target(
-                        Stdout(level)
-                    );
-                }
-
-                let subscriber = options.into_subscriber().expect("could not create subscriber");
-                let _ = subscriber.try_init();
+            if options.target_count() == 0 {
+                let level = options.level.clone();
+                options = options.target(
+                    Stdout(level)
+                );
             }
-        } else {
-            quote! {}
-        };
+
+            let subscriber = options.into_subscriber().expect("could not create subscriber");
+            let _ = subscriber.try_init();
+        }
+    } else {
+        quote! {}
+    };
 
     let ItemFn {
-        attrs, vis, sig, block
+        attrs,
+        vis,
+        sig,
+        block,
     } = test;
     let result = quote! {
         #[#test_harness]
@@ -92,7 +94,6 @@ fn try_test(attr: proc_macro::TokenStream, test: ItemFn) -> syn::Result<Tokens> 
     };
     Ok(result)
 }
-
 
 #[derive(Debug, Default)]
 struct AttributeArgs {
@@ -121,13 +122,13 @@ impl AttributeArgs {
 
     fn parse_single_arg(&mut self, meta: &Meta) -> syn::Result<()> {
         let MetaNameValue {
-            path, eq_token: _, value,
+            path,
+            eq_token: _,
+            value,
         } = meta.require_name_value()?;
         let ident = path.require_ident()?.clone();
         match self.settings.entry(ident.clone()) {
-            Entry::Occupied(_) => {
-                Err(syn::Error::new(ident.span(), "Duplicate setting"))
-            }
+            Entry::Occupied(_) => Err(syn::Error::new(ident.span(), "Duplicate setting")),
             Entry::Vacant(v) => {
                 v.insert(value.clone());
                 Ok(())

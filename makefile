@@ -1,6 +1,8 @@
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-builtin-variables
 .PRECIOUS: %.wasm
+NPROCS = $(shell sysctl hw.ncpu  | grep -o '[0-9]\+')
+MAKEFLAGS += -j$(NPROCS)
 
 TOOLCHAIN:=stable
 CARGO:=cargo +$(TOOLCHAIN)
@@ -84,3 +86,21 @@ dist: build $(addprefix target/dist/,$(wildcard static/*)) $(addprefix target/di
 
 serve: build dist
 	$(CARGO) run $(FLAG) --bin site -- --cwd=$(DIST_DIR) --debug
+
+.PHONY: run run-server run-client
+
+run-server:
+	$(CARGO) run --release -p game_server
+run-client:
+	$(CARGO) run --release -p game_client
+
+run: run-server run-client
+
+# extra cargo commands
+.PHONY: fmt check
+fmt:
+	$(CARGO) fmt
+
+check:
+	$(CARGO) check --workspace
+

@@ -1,5 +1,6 @@
 //! Contains main yew pages
 
+use components::game::Game;
 use std::fmt::{Display, Formatter};
 use wasm_bindgen::prelude::wasm_bindgen;
 use yew::{function_component, html, BaseComponent, Html};
@@ -7,7 +8,7 @@ use yew::{function_component, html, BaseComponent, Html};
 #[wasm_bindgen]
 #[derive(Debug, Copy, Clone)]
 pub enum Page {
-    Index
+    Index,
 }
 
 impl Display for Page {
@@ -23,7 +24,7 @@ pub trait PageComponent: BaseComponent {
 #[function_component]
 pub fn Index() -> Html {
     html! {
-        <p>{"Hello, World!"}</p>
+        <Game />
     }
 }
 

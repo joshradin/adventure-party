@@ -1,6 +1,6 @@
+use pages::Index;
 use wasm_bindgen::prelude::wasm_bindgen;
 use yew::Renderer;
-use pages::{Index};
 
 pub use pages::Page;
 

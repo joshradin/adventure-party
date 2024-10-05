@@ -5,10 +5,7 @@ use tracing::level_filters::LevelFilter;
 
 #[tokio::main]
 async fn main() {
-    init_logging(
-        LoggingOptions::new()
-            .target(Stdout(LevelFilter::TRACE))
-    );
+    init_logging(LoggingOptions::new().target(Stdout(LevelFilter::TRACE)));
 
-
+    loop {}
 }

@@ -1,4 +1,6 @@
-use naia_bevy_shared::{Channel, ChannelDirection, ChannelMode, Protocol, ProtocolPlugin, TickBufferSettings};
+use naia_bevy_shared::{
+    Channel, ChannelDirection, ChannelMode, Protocol, ProtocolPlugin, TickBufferSettings,
+};
 
 #[derive(Channel)]
 pub struct PlayerCommandChannel;
@@ -9,7 +11,7 @@ impl ProtocolPlugin for ChannelsPlugin {
     fn build(&self, protocol: &mut Protocol) {
         protocol.add_channel::<PlayerCommandChannel>(
             ChannelDirection::ClientToServer,
-            ChannelMode::TickBuffered(TickBufferSettings::default())
+            ChannelMode::TickBuffered(TickBufferSettings::default()),
         );
     }
 }

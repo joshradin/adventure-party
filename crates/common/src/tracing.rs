@@ -6,11 +6,11 @@ use thiserror::Error;
 use tracing::level_filters::LevelFilter;
 use tracing::subscriber::{set_global_default, SetGlobalDefaultError};
 use tracing::Subscriber;
+use tracing_subscriber::filter::filter_fn;
 use tracing_subscriber::fmt::format::Format;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::registry::LookupSpan;
 use tracing_subscriber::{fmt, registry, Layer};
-use tracing_subscriber::filter::filter_fn;
 
 #[derive(Debug)]
 pub struct Stdout(pub LevelFilter);
@@ -74,7 +74,7 @@ struct Targets {
 }
 
 impl Targets {
-    fn new<I: IntoIterator<Item=Target>>(iter: I) -> Result<Self, InitializeLoggingError> {
+    fn new<I: IntoIterator<Item = Target>>(iter: I) -> Result<Self, InitializeLoggingError> {
         let mut out = false;
         let mut err = false;
         let mut paths = HashSet::new();
@@ -104,7 +104,10 @@ impl Targets {
         Ok(ret)
     }
 
-    fn into_layer<S: Subscriber + for<'a> LookupSpan<'a>>(mut self, options: &LoggingOptions) -> Result<impl Layer<S> + 'static, InitializeLoggingError> {
+    fn into_layer<S: Subscriber + for<'a> LookupSpan<'a>>(
+        mut self,
+        options: &LoggingOptions,
+    ) -> Result<impl Layer<S> + 'static, InitializeLoggingError> {
         let mut layers = vec![];
 
         let targets = self.targets.drain(..).collect::<Vec<_>>();
@@ -194,15 +197,19 @@ impl LoggingOptions {
     pub fn into_subscriber(mut self) -> Result<impl Subscriber, InitializeLoggingError> {
         let targets = Targets::new(self.targets.drain(..))?;
 
-        Ok(self.default_level.with_subscriber(
-            targets.into_subscriber(&self)?
-        ))
+        Ok(self
+            .default_level
+            .with_subscriber(targets.into_subscriber(&self)?))
     }
 
-    pub fn into_layer<S : Subscriber + for<'w> LookupSpan<'w>>(mut self) -> Result<impl Layer<S>, InitializeLoggingError> {
+    pub fn into_layer<S: Subscriber + for<'w> LookupSpan<'w>>(
+        mut self,
+    ) -> Result<impl Layer<S>, InitializeLoggingError> {
         let targets = Targets::new(self.targets.drain(..))?;
 
-        let targets_layer = targets.into_layer::<S>(&self)?.with_filter(self.default_level);
+        let targets_layer = targets
+            .into_layer::<S>(&self)?
+            .with_filter(self.default_level);
 
         Ok(targets_layer)
     }
@@ -243,6 +250,6 @@ mod tests {
             Stdout(LevelFilter::OFF).into(),
             Stdout(LevelFilter::OFF).into(),
         ])
-            .expect_err("can not repeat");
+        .expect_err("can not repeat");
     }
 }

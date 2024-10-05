@@ -23,7 +23,7 @@ naia-bevy-client = { workspace = true, features = ["transport_webrtc"] }
 bevy = { workspace = true, features = ["bevy_asset", "bevy_winit", "bevy_core_pipeline", "bevy_render", "bevy_sprite", "x11", "webgl2"] }
 cfg-if = { workspace = true }
 log = { workspace = true }
-protocol = { path="../protocol", version="0.0.0"}
+game_shared = { path= "../game_shared", version="0.0.0"}
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = { version = "0.2", features = [ "serde-serialize" ] }

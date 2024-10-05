@@ -11,12 +11,14 @@ pub struct GamePort {
 
 #[cfg(test)]
 mod tests {
-    use askama::Template;
     use crate::components::GamePort;
+    use askama::Template;
 
     #[test]
     fn test_render_game_port() {
-        let port = GamePort { canvas_id: "mygame-canvas"};
+        let port = GamePort {
+            canvas_id: "mygame-canvas",
+        };
         let rendered = port.render().unwrap();
         println!("{}", rendered);
     }

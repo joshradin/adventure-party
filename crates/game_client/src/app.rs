@@ -1,3 +1,4 @@
+use crate::systems::init;
 use bevy::prelude::*;
 use naia_bevy_client::{ClientConfig, Plugin as ClientPlugin};
 use protocol::protocol;
@@ -20,11 +21,11 @@ pub fn run() {
             }),
             ..default()
         }))
-        .add_plugins(
-            ClientPlugin::<Main>::new(
-                ClientConfig::default(),
-                protocol(),
-            )
-        )
+        .add_plugins(ClientPlugin::<Main>::new(
+            ClientConfig::default(),
+            protocol(),
+        ))
+        .insert_resource(ClearColor(Color::BLACK))
+        .add_systems(Startup, init)
         .run();
 }

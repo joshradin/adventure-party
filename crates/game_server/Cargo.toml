@@ -13,7 +13,7 @@ license-file.workspace = true
 #adventure_party_naia_world = { version = "0.0.0", path = "../adventure_party_naia_world" }
 common = { version = "0.0.0", path = "../common", features = ["full"] }
 naia-bevy-server = { workspace = true, features = ["transport_webrtc"] }
-protocol = { version = "0.0.0", path = "../protocol" }
+game_shared = { version = "0.0.0", path = "../game_shared" }
 
 tracing = { workspace = true }
 tokio = { workspace = true, features = ["full"] }

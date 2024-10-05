@@ -36,18 +36,16 @@ fn static_router() -> Router {
             for entry in dir.read_dir().expect("could not read dir") {
                 let entry = entry.expect("could not read dir entry");
                 let ty = entry.file_type().expect("could not get file type");
-                let relative = entry.path().relative_to(&static_dir).expect("could not create relative path");
+                let relative = entry
+                    .path()
+                    .relative_to(&static_dir)
+                    .expect("could not create relative path");
                 if ty.is_dir() {
                     dir_queue.push_back(relative);
                 } else if ty.is_file() {
                     let path = format!("/{}", relative);
                     debug!("creating route GET:{path}");
-                    router = router.route(
-                        &path,
-                        get(static_file_handler(
-                            entry.path()
-                        )),
-                    );
+                    router = router.route(&path, get(static_file_handler(entry.path())));
                 }
             }
         }
@@ -88,29 +86,19 @@ mod get {
         trace!("public_path: {public_path:?}");
 
         let media_type: Mime = match public_path.extension().and_then(|s| s.to_str()) {
-            Some("js") => {
-                APPLICATION_JAVASCRIPT
-            }
-            Some("wasm") => {
-                Mime::from_str("application/wasm").expect("application/wasm is not a valid MIME type")
-            }
-            Some("html") => {
-                TEXT_HTML
-            }
-            Some("txt") => {
-                TEXT_PLAIN
-            }
-            _ => APPLICATION_OCTET_STREAM
+            Some("js") => APPLICATION_JAVASCRIPT,
+            Some("wasm") => Mime::from_str("application/wasm")
+                .expect("application/wasm is not a valid MIME type"),
+            Some("html") => TEXT_HTML,
+            Some("txt") => TEXT_PLAIN,
+            _ => APPLICATION_OCTET_STREAM,
         };
 
         let read = tokio::fs::read(public_path)
             .await
             .map_err(|_| StatusCode::NOT_FOUND)?;
 
-        let ret = (
-            TypedHeader::<ContentType>(media_type.into()),
-            read);
+        let ret = (TypedHeader::<ContentType>(media_type.into()), read);
         Ok(ret)
     }
 }
-

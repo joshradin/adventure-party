@@ -15,8 +15,7 @@ use yew::{function_component, html, BaseComponent, Html, Properties, ServerRende
 #[derive(Debug)]
 pub struct Yew<T: PageComponent>(pub T::Properties)
 where
-    T::Properties: Send + Clone
-;
+    T::Properties: Send + Clone;
 
 impl<T: PageComponent> Yew<T>
 where
@@ -27,7 +26,6 @@ where
         Self(T::Properties::default())
     }
 }
-
 
 #[function_component]
 fn WrappedYew<T: PageComponent>(props: &T::Properties) -> Html
@@ -70,22 +68,20 @@ where
     fn into_response(self) -> Response {
         let renderer = ServerRenderer::<WrappedYew<T>>::with_props(|| self.0);
 
-        Response::new(
-            Body::new(YewBody::new(renderer))
-        )
+        Response::new(Body::new(YewBody::new(renderer)))
     }
 }
 
 #[pin_project]
 struct YewBody {
     #[pin]
-    stream: Pin<Box<dyn Stream<Item=String> + Send>>,
+    stream: Pin<Box<dyn Stream<Item = String> + Send>>,
 }
 
 impl YewBody {
     fn new<T: BaseComponent>(renderer: ServerRenderer<T>) -> Self {
         Self {
-            stream: Box::pin(renderer.render_stream())
+            stream: Box::pin(renderer.render_stream()),
         }
     }
 }
@@ -94,21 +90,20 @@ impl HttpBody for YewBody {
     type Data = Bytes;
     type Error = Infallible;
 
-    fn poll_frame(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Result<Frame<Self::Data>, Self::Error>>> {
+    fn poll_frame(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+    ) -> Poll<Option<Result<Frame<Self::Data>, Self::Error>>> {
         let mut me = self.project();
         match me.stream.as_mut().poll_next(cx) {
             Poll::Ready(ready) => {
                 let frame = ready.map(|string| {
                     trace!("yew string ready: {string:?}");
-                    Ok(Frame::data(
-                        Bytes::from(string)
-                    ))
+                    Ok(Frame::data(Bytes::from(string)))
                 });
                 Poll::Ready(frame)
             }
-            Poll::Pending => {
-                Poll::Pending
-            }
+            Poll::Pending => Poll::Pending,
         }
     }
 }
